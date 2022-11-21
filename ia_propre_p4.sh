@@ -80,9 +80,53 @@ ia_3()
 					eval figure$vx2y+="\$fig"
 				fi
 			fi
+			if [[ $i -le 3 && $j -le 4 ]]; then
+				eval local vx1y1=\${lig$i1[\$j1]}
+                                eval local vx2y2=\${lig$i2[\$j2]}
+                                eval local vx3y3=\${lig$i3[\$j3]}
+				if [ $vxy == $vx3y3 ] && [ $vxy != '-' ] 
+				then
+				       if [ $vxy == $vx1y1 ] || [ $vxy == $vx2y2 ]; then
+						if [ $vx1y1 == '-' ]; then 
+							local pos="$i1 $j1 |"
+							local fig="DiagMoMissing |"
+							eval pos$vxy+="\$pos"
+							eval figure$vxy+="\$fig"
+						else if [ $vx2y2 == '-' ]; then
+						       	local pos="$i2 $j2 |"
+							local fig="DiagMoMissing |"
+							eval pos$vxy+="\$pos"
+							eval figure$vxy+="\$fig"
+						fi
+					      	fi
+				       fi
+				fi
+				eval local vx3y=\${lig$i3[\$j]}
+				eval local vx2y1=\${lig$i2[\$j1]}
+                                eval local vx1y2=\${lig$i1[\$j2]}
+                                eval local vxy3=\${lig$i[\$j3]}
+				if [ $vx3y == $vxy3 ] && [ $vx3y != '-' ] 
+				then
+				       if [ $vx3y == $vx2y1 ] || [ $vx3y == $vx2y1 ]; then
+						if [ $vx2y1 == '-' ]; then 
+							local pos="$i1 $j2 |"
+							local fig="DiagDeMissing |"
+							eval pos$vxy+="\$pos"
+							eval figure$vxy+="\$fig"
+						else if [ $vx1y2 == '-' ]; then
+						       	local pos="$i2 $j1 |"
+							local fig="DiagDeMissing |"
+							eval pos$vxy+="\$pos"
+							eval figure$vxy+="\$fig"
+						fi
+					      	fi
+				       fi
+				fi
+			fi
 		done
 	done
-
+	echo "posX: $posX figX: $figureX"
+	echo " posO: $posO figO: $figureO"
 	local nb_posX=$(echo $posX | grep -o '|' | wc -l)
 	local nb_posO=$(echo $posO | grep -o '|' | wc -l)
 
@@ -279,7 +323,7 @@ ia_3()
                 	                                        fi
                         	                        fi
                                 	        fi;;
-					"LigMissing")
+					"LigMissing"|"DiagMoMissing"|"DiagDeMissing")
         	                                if eval [ \$lig$a -eq 1 ]; then
 							eval local temp=\$col$a
 							if [ $a == 'X' ]; then
@@ -300,6 +344,7 @@ ia_3()
 								fi
                                         	        fi
 	                                        fi;;
+					
 					*);;
 				esac
 			done
@@ -340,21 +385,34 @@ ia_3()
 				if  [ $symb == 'O' ] && [ $nb_posX_ok -ne 0 ]; then
 					add $placX 'O'
 				else
-					if [ $symb == 'X' ]; then
-						
-						weighted_selection
-						random=$?
-						while [ $ret -eq 1 ]; do
+#					if [ $symb == 'X' ]; then
+#						
+#						weighted_selection
+#						random=$?
+#						while [ $ret -eq 1 ]; do
+#							#random=$((1 + $RANDOM %7))
+#							weighted_selection
+#							random=$?
+#							add $random $symb
+#							ret=$?
+#						done
+#					else 
+#						if [ $symb == 'O' ]; then
+#							weighted_selection
+#							random=$?
+#							while [ $ret -eq 1 ]; do
+#								#random=$((1 + $RANDOM %7))
+#								weighted_selection
+#								random=$?
+#								add $random $symb
+#								ret=$?
+#							done
+#						else
 							#random=$((1 + $RANDOM %7))
 							weighted_selection
 							random=$?
 							add $random $symb
 							ret=$?
-						done
-					else 
-						if [ $symb == 'O' ]; then
-							weighted_selection
-							random=$?
 							while [ $ret -eq 1 ]; do
 								#random=$((1 + $RANDOM %7))
 								weighted_selection
@@ -362,21 +420,8 @@ ia_3()
 								add $random $symb
 								ret=$?
 							done
-						else
-							#random=$((1 + $RANDOM %7))
-							weighted_selection
-							random=$?
-							add $random $symb
-							ret=$?
-							while [ $ret -eq 1 ]; do
-								#random=$((1 + $RANDOM %7))
-								weighted_selection
-								random=$?
-								add $random $symb
-								ret=$?
-							done
-						fi
-					fi
+						#fi
+					#fi
 				fi
 			fi
 		fi
