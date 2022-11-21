@@ -36,18 +36,18 @@ ia_3()
                                 eval local vxy3=\${lig$i[\$j3]}
 				if [ $vxy == $vxy3 ] && [ $vxy != '-' ] 
 				then
-					echo if1 vxy: $vxy vxy1: $vxy1 vxy2: $vxy2
+					#echo if1 vxy: $vxy vxy1: $vxy1 vxy2: $vxy2
 				       if [ $vxy == $vxy1 ] || [ $vxy == $vxy2 ]; then
-					       echo if2
-					       	echo "Ligne possible en [$i;$j]"
+					      # echo if2
+					       #	echo "Ligne possible en [$i;$j]"
 						if [ $vxy1 == '-' ]; then 
 							local pos="$i $j1 |"
-							local fig="Lig Missing |"
+							local fig="LigMissing |"
 							eval pos$vxy+="\$pos"
 							eval figure$vxy+="\$fig"
 						else if [ $vxy2 == '-' ]; then
 						       	local pos="$i $j2 |"
-							local fig="Lig Missing |"
+							local fig="LigMissing |"
 							eval pos$vxy+="\$pos"
 							eval figure$vxy+="\$fig"
 						fi
@@ -100,11 +100,10 @@ ia_3()
 	local nb_posO=$(echo $posO | grep -o '|' | wc -l)
 
 	for a in  'X' 'O'; do
-		echo $a
 
-	eval echo "pos$a \$pos$a"
+#	eval echo "pos$a \$pos$a"
 	
-	eval echo "nb_pos$a : \$nb_pos$a"
+#	eval echo "nb_pos$a : \$nb_pos$a"
 
 	eval local coord$a=''
 	eval local fig$a=''
@@ -126,34 +125,46 @@ ia_3()
 				coordO=$(echo $posO | cut -d '|' -f $z)
 			fi
 			eval temp=\$figure$a
-			eval fig$a=$(echo $temp | cut -d '|' -f $z)
+			echo "temp(fig$a): $temp"
+			eval fig$a=$(echo "$temp" | cut -d '|' -f $z)
 			eval temp=\$coord$a
-			eval lig$a=$(echo $temp | cut -d ' ' -f 1)
-			eval col$a=$(echo $temp | cut -d ' ' -f 2)
+			echo "temp(coord$a): $temp"
+			eval lig$a=$(echo "$temp" | cut -d ' ' -f 1)
+			eval col$a=$(echo "$temp" | cut -d ' ' -f 2)
 			
 			eval local coord_ok$a=""
-			eval local text=\$fig$a 
-			echo text: $text
+			eval local text="\$fig$a" 
+			echo text: "$text"prout
 			case $text in
-				"Lig ")
+				"Lig")
+					echo ligne
 					if eval [ \$col$a -ne 1 ]; then
 						#check gauche de la ligne
 						eval local temp=\$col$a
 						j_left=$(($temp-1))
-						if [ $a == 'X' ]; then
-							eval local v_left=\${lig$ligX[\$j_left]}
-						else 
-							eval local v_left=\${lig$ligO[\$j_left]}
-						fi
+						#if [ $a == 'X' ]; then
+						eval local temp=\$lig$a
+						eval local v_left=\${lig$temp[\$j_left]}
+						#else 
+						#	eval local v_left=\${lig$ligO[\$j_left]}
+						#fi
 						if [ $v_left == '-' ];then 
-							if eval [ $lig$a -eq 1 ]; then
-								 eval pos_ok$a+="$j_left |"
+							if eval [ \$lig$a -eq 1 ]; then
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_left |"
+								else
+									pos_okO+="$j_left |"
+								fi
 							else
 								eval local temp=\$lig$a
 								i_bot=$(($temp-1))
 								eval local v_left_bot=\${lig$i_bot[\$j_left]}
 								if [ $v_left_bot != '-' ]; then 
-								       	eval pos_ok$a+="$j_left |"
+									if [ $a == 'X' ]; then
+									       	pos_okX+="$j_left |"
+									else
+									       	pos_okO+="$j_left |"
+									fi
 								fi
 							fi
 						fi	
@@ -161,25 +172,168 @@ ia_3()
 					if eval [ \$col$a -lt 5 ]; then
 						#check droite de la ligne
 						eval local temp=\$col$a
-						eval j_right=$(($temp+3))
-						if [ $a == 'X' ]; then
-							eval local v_right=\${lig$ligX[\$j_right]}
-						else
-							eval local v_right=\${lig$ligO[\$j_right]}
-						fi
+						j_right=$(($temp+3))
+						#if [ $a == 'X' ]; then
+						eval local temp=\$lig$a
+						eval local v_right=\${lig$temp[\$j_right]}
+						#else
+						#	eval local v_right=\${lig$ligO[\$j_right]}
+						#fi
 						if [ $v_right == '-' ];then 
 							if eval [ \$lig$a -eq 1 ]; then
-								eval pos_ok$a+="$j_right |"
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_right |"
+								else
+									pos_okO+="$j_right |"
+								fi
 							else
 								eval local temp=\$lig$a
-								eval i_bot=$((temp-1))
+								i_bot=$(($temp-1))
 								eval local v_right_bot=\${lig$i_bot[\$j_right]}
 								if [ $v_right_bot != '-' ]; then 
-								       	eval pos_ok$a+="$j_right |"
+									if [ $a == 'X' ]; then
+										pos_okX+="$j_right |"
+									else
+										pos_okO+="$j_right |"
+									fi
 								fi
 							fi
 						fi	
 					fi;;
+				"Col")
+                                        if eval [ \$lig$a -lt 4 ]; then
+                                                #check haut de la col
+                                                eval local temp=\$lig$a
+						i_hi=$(($temp+3))
+						eval temp=\$col$a
+                                                eval local v_hi=\${lig$i_hi[\$temp]}
+                                                if [ $v_hi == '-' ]; then
+							if [ $a == 'X' ]; then
+                                                        	pos_okX+="$temp |"
+							else
+                                                        	pos_okO+="$temp |"
+							fi
+
+                                                fi
+                                        fi;;
+                                "DiagoM")
+                                        if eval [ \$lig$a -ne 1 ] && eval [ \$col$a -ne 1 ]; then
+                                                #check gauche de la diago
+                                                eval local temp=\$col$a
+                                                j_left=$(($temp-1))
+                                                eval temp=\$lig$a
+                                                i_bot=$(($temp-1))
+                                                eval local v_left=\${lig$i_bot[\$j_left]}
+                                                if [ $v_left == '-' ];then
+                                                        if eval [ \$lig$a -eq 2 ]; then
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_left |"
+								else
+									pos_okO+="$j_left |"
+								fi
+                                                        else
+                                                		eval local temp=\$lig$a
+                                                                i_bot2=$(($temp-2))
+                                                                eval local v_left_bot=\${lig$i_bot2[\$j_left]}
+                                                                if [ $v_left_bot != '-' ]; then
+									if [ $a == 'X' ]; then
+										pos_okX+="$j_left |"
+									else
+										pos_okO+="$j_left |"
+									fi
+                                                                fi
+                                                        fi
+                                                fi
+                                        fi
+                                        if eval [ \$lig$a -lt 4 ] && eval [ \$col$a -lt 5 ]; then
+                                                #check droite de la diago
+                                                eval local temp=\$col$a
+                                                j_right=$(($temp+3))
+                                                eval temp=\$lig$a
+                                                i_hi=$(($temp+3))
+                                                eval local v_right=\${lig$i_hi[\$j_right]}
+                                                if [ $v_right == '-' ];then
+                                                        i_bot=$(($i_hi-1))
+                                                        eval local v_right_bot=\${lig$i_bot[\$j_right]}
+                                                        if [ $v_right_bot != '-' ]; then
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_right |"
+								else
+									pos_okO+="$j_right |"
+								fi
+                                                        fi
+                                                fi
+                                        fi;;
+				"DiagoD")
+                                        if eval [ \$lig$a -lt 4 ] && eval [ \$col$a -ne 1 ]; then
+                                                #check gauche de la diago
+                                                eval local temp=\$col$a
+                                                j_left=$(($temp-1))
+                                                eval temp=\$lig$a
+                                                i_hi=$(($temp+3))
+                                                eval local v_left=\${lig$i_hi[\$j_left]}
+                                                if [ $v_left == '-' ];then
+                                                        i_bot=$(($i_hi-1))
+                                                        eval local v_left_bot=\${lig$i_bot[\$j_left]}
+                                                        if [ $v_left_bot != '-' ]; then
+								eval pos_ok$a+=
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_left |"
+								else
+									pos_okO+="$j_left |"
+								fi
+                                                        fi
+                                                fi
+                                        fi
+                                        if eval [ \$lig$a -ne 1 ] && eval [ \$col$a -lt 5 ]; then
+                                                #check droite de la diago
+                                                eval local temp=\$col$a
+                                                j_right=$(($temp+3))
+                                                eval temp=\$lig$a
+                                                i_bot=$(($temp-1))
+                                                eval local v_right=\${lig$i_bot[\$j_right]}
+                                                if [ $v_right == '-' ];then
+                                                        if eval [ \$lig$a -eq 2 ]; then
+								if [ $a == 'X' ]; then
+									pos_okX+="$j_right |"
+								else
+									pos_okO+="$j_right |"
+								fi
+                                                         else
+                                                                 i_bot2=$(($temp-2))
+                                                                 eval local v_right_bot=\${lig$i_bot2[\$j_right]}
+                                                                 if [ $v_right_bot != '-' ]; then
+									if [ $a == 'X' ]; then
+										pos_okX+="$j_right |"
+									else
+										pos_okO+="$j_right |"
+									fi
+                                                                 fi
+                                                        fi
+                                                fi
+                                        fi;;
+				"LigMissing")
+                                        if eval [ \$lig$a -eq 1 ]; then
+						eval local temp=\$col$a
+						if [ $a == 'X' ]; then
+							pos_okX+="$temp |"
+						else
+							pos_okO+="$temp |"
+						fi
+                                        else
+                                                eval local temp=\$lig$a
+                                                i_bot=$(($lig-1))
+						eval temp=\$col$a
+                                                eval local v_bot=\${lig$i_bot[\$temp]}
+                                                if [ $v_bot != '-' ]; then
+							if [ $a == 'X' ]; then
+								pos_okX+="$temp |"
+							else
+								pos_okO+="$temp |"
+							fi
+                                                fi
+                                        fi
+                                        ;;
 				*);;
 			esac
 		done
@@ -192,25 +346,25 @@ ia_3()
 	local placX=''
 	local plac0=''
 	local random=0
-	local nb_posX_ok=$(echo $posX_ok | grep -o '|' | wc -l)
-	local nb_posO_ok=$(echo $posO_ok | grep -o '|' | wc -l)
+	local nb_posX_ok=$(echo $pos_okX | grep -o '|' | wc -l)
+	local nb_posO_ok=$(echo $pos_okO | grep -o '|' | wc -l)
 
 #	echo nb_pos  X: $nb_posX_ok O:  $nb_posO_ok 
 
         if [ $nb_posX_ok -ne 0 ]; then
         	if [ $nb_posX_ok -ne 1 ]; then
 			random=$((1 + $RANDOM %$nb_posX_ok))
-                        placX=$(echo $posX_ok | cut -d '|' -f $random)
+                        placX=$(echo $pos_okX | cut -d '|' -f $random)
 		else
-                        placX=$(echo $posX_ok | cut -d '|' -f 1)
+                        placX=$(echo $pos_okX | cut -d '|' -f 1)
 		fi
 	fi	       
         if [ $nb_posO_ok -ne 0 ]; then
         	if [ $nb_posO_ok -ne 1 ]; then
 			random=$((1 + $RANDOM %$nb_posO_ok))
-                        placO=$(echo $posO_ok | cut -d '|' -f $random)
+                        placO=$(echo $pos_okO | cut -d '|' -f $random)
 		else
-                        placO=$(echo $posO_ok | cut -d '|' -f 1)
+                        placO=$(echo $pos_okO | cut -d '|' -f 1)
 		fi
 	fi	       
 

@@ -47,7 +47,7 @@ validate_win()
 				eval local vx1y2=\${lig$i1[\$j2]}
 				if [[ $vx3y == $vx2y1 && $vx3y == $vx1y2 && $vx3y == $vxy3 && $vx3y != '-' ]]
 				then
-					echo "Diago descendante en [$i;$j]"
+					echo "Diago descendante en [$i3;$j]"
 					win=$vxy
 				fi
 			fi
