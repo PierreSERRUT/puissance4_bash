@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+weighted_selection() {
+    case $(( RANDOM % 20 )) in
+        0|1) return 1 ;;      
+        2|3) return 2 ;;    
+        4|5|6) return 3 ;;  
+        7|8|9) return 5 ;; 
+        10|11) return 6 ;;     
+        12|13) return 7 ;;     
+        *) return 4 ;;  
+    esac
+}
+
 game()
 {
 	local turn=1

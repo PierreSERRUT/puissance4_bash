@@ -22,7 +22,6 @@ ia_3()
                                 eval local vxy2=\${lig$i[\$j2]}
 				if [[ $vxy == $vxy1 && $vxy == $vxy2 && $vxy != '-' ]]
 				then
-					#echo "Ligne possible en [$i;$j]"
 					local pos="$i $j |"
 					local fig="Lig |"
 
@@ -36,10 +35,7 @@ ia_3()
                                 eval local vxy3=\${lig$i[\$j3]}
 				if [ $vxy == $vxy3 ] && [ $vxy != '-' ] 
 				then
-					#echo if1 vxy: $vxy vxy1: $vxy1 vxy2: $vxy2
 				       if [ $vxy == $vxy1 ] || [ $vxy == $vxy2 ]; then
-					      # echo if2
-					       #	echo "Ligne possible en [$i;$j]"
 						if [ $vxy1 == '-' ]; then 
 							local pos="$i $j1 |"
 							local fig="LigMissing |"
@@ -60,7 +56,6 @@ ia_3()
 				eval local vx2y=\${lig$i2[\$j]}
 				if [[ $vxy == $vx1y && $vxy == $vx2y && $vxy != '-' ]]
 				then
-					#echo "Colonne possible en [$i;$j]"
 					local pos="$i $j |"
 					local fig="Col |"
 
@@ -73,7 +68,6 @@ ia_3()
 				eval local vx2y2=\${lig$i2[\$j2]}
 				if [[ $vxy == $vx1y1 && $vxy == $vx2y2 && $vxy != '-' ]]
 				then
-					#echo "Diago montante possible en [$i;$j]"
 					local pos="$i $j |"
 					local fig="DiagoM |"
 
@@ -82,7 +76,6 @@ ia_3()
 				fi
 				if [[ $vx2y == $vx1y1 && $vx2y == $vxy2 && $vx2y != '-' ]]
 				then
-					#echo "Diago descendante possible en [$i2;$j]"
 					local pos="$i $j |"
 					local fig="DiagoD |"
 
@@ -101,9 +94,7 @@ ia_3()
 
 	for a in  'X' 'O'; do
 
-#	eval echo "pos$a \$pos$a"
 	
-#	eval echo "nb_pos$a : \$nb_pos$a"
 
 	eval local coord$a=''
 	eval local fig$a=''
@@ -125,19 +116,15 @@ ia_3()
 				coordO=$(echo $posO | cut -d '|' -f $z)
 			fi
 			eval temp=\$figure$a
-			echo "temp(fig$a): $temp"
 			eval fig$a=$(echo "$temp" | cut -d '|' -f $z)
 			eval temp=\$coord$a
-			echo "temp(coord$a): $temp"
 			eval lig$a=$(echo "$temp" | cut -d ' ' -f 1)
 			eval col$a=$(echo "$temp" | cut -d ' ' -f 2)
 			
 			eval local coord_ok$a=""
 			eval local text="\$fig$a" 
-			echo text: "$text"prout
 			case $text in
 				"Lig")
-					echo ligne
 					if eval [ \$col$a -ne 1 ]; then
 						#check gauche de la ligne
 						eval local temp=\$col$a
@@ -340,7 +327,6 @@ ia_3()
 	fi
 
 	done
-        echo posO: $pos_okO posX: $pos_okX
 
 	local ret=0
 	local placX=''
@@ -349,7 +335,6 @@ ia_3()
 	local nb_posX_ok=$(echo $pos_okX | grep -o '|' | wc -l)
 	local nb_posO_ok=$(echo $pos_okO | grep -o '|' | wc -l)
 
-#	echo nb_pos  X: $nb_posX_ok O:  $nb_posO_ok 
 
         if [ $nb_posX_ok -ne 0 ]; then
         	if [ $nb_posX_ok -ne 1 ]; then
@@ -368,7 +353,6 @@ ia_3()
 		fi
 	fi	       
 
-#	echo placX $placX
 
 	if [ $symb == 'X' ] && [ $nb_posX_ok -ne 0 ]; then
 		add $placX 'X'
@@ -382,11 +366,15 @@ ia_3()
 				if  [ $symb == 'O' ] && [ $nb_posX_ok -ne 0 ]; then
 					add $placX 'O'
 				else
-					random=$((1 + $RANDOM %7))
+					#random=$((1 + $RANDOM %7))
+					weighted_selection
+					random=$?
 					add $random $symb
 					ret=$?
 					while [ $ret -eq 1 ]; do
-						random=$((1 + $RANDOM %7))
+						#random=$((1 + $RANDOM %7))
+						weighted_selection
+						random=$?
 						add $random $symb
 						ret=$?
 					done
