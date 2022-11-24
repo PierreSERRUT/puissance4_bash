@@ -35,7 +35,6 @@ detect_3()
 				if [[ $vxy == $vxy1 && $vxy == $vxy2 && $vxy != '-' ]]
 				then
 					local pos="$i $j"
-					##local fig="Lig |"
 					if [ $vxy == X ]; then
 					       	pos_X+=($pos)
 					       	figure_X+=("Lig")
@@ -134,6 +133,7 @@ detect_3()
 	done
 }
 
+#rempli les positions ok et interdite pour X et O
 check_pos()
 {
 
@@ -427,7 +427,6 @@ main_ia()
 	if [ $nb_pos_ok_X -ne 0 ]; then
         	if [ $nb_pos_ok_X -ne 1 ]; then
 			random=$(($RANDOM %$nb_pos_ok_X))
-			echo "placX// random=$random"
                         placX=${pos_ok_X[$random]}
 		else
                         placX=${pos_ok_X[0]}
@@ -452,10 +451,8 @@ main_ia()
 				add $placO 'O'
 			else 
 				if  [ $symb == 'O' ] && [ $nb_pos_ok_X -ne 0 ]; then
-					echo "pos_ok_X: ${pos_ok_X[@]} / placX: $placX"
 					add $placX 'O'
 				else
-					echo "last case"
 					local cond1=true
 					while $cond1 || [ $ret_add -eq 1 ]; do
 						cond1=false
@@ -471,7 +468,6 @@ main_ia()
 							ret_imp=$?
 							if [ $ret_imp -eq 1 ]; then break; fi
 						done
-						echo "random: $random"
 						add $random $symb
 						ret_add=$?
 					done
