@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
-ia_3()
+init_var_ia()
 {
-	local symb=$1
-
 	for i in 'X' 'O';do
-		eval local pos$i=""
-		eval local figure$i=""
+		eval pos$i=""
+		eval figure$i=""
+		eval pos_ok$i=""
 	done
+	declare -a pos_forbit_X=()
+	declare -a pos_forbit_O=()
+}
+
+#rempli les posX,O et figX,O
+detect_3()
+{
 	for i in {1..6}; do
 		for j in {1..7}; do
 			local i1=$(($i+1))
@@ -16,7 +22,6 @@ ia_3()
 			local j1=$(($j+1))
 			local j2=$(($j+2))
 			local j3=$(($j+3))
-
 			eval local vxy=\${lig$i[\$j]}
 			if [ $j -le 5 ]; then 
 				eval local vxy1=\${lig$i[\$j1]}
@@ -107,17 +112,17 @@ ia_3()
                                 eval local vxy3=\${lig$i[\$j3]}
 				if [ $vx3y == $vxy3 ] && [ $vx3y != '-' ] 
 				then
-				       if [ $vx3y == $vx2y1 ] || [ $vx3y == $vx2y1 ]; then
+				       if [ $vx3y == $vx2y1 ] || [ $vx3y == $vx1y2 ]; then
 						if [ $vx2y1 == '-' ]; then 
-							local pos="$i1 $j2 |"
+							local pos="$i2 $j1 |"
 							local fig="DiagDeMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+							eval pos$vx3y+="\$pos"
+							eval figure$vx3y+="\$fig"
 						else if [ $vx1y2 == '-' ]; then
-						       	local pos="$i2 $j1 |"
+						       	local pos="$i1 $j2 |"
 							local fig="DiagDeMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+							eval pos$vx3y+="\$pos"
+							eval figure$vx3y+="\$fig"
 						fi
 					      	fi
 				       fi
@@ -125,8 +130,18 @@ ia_3()
 			fi
 		done
 	done
-	echo "posX: $posX figX: $figureX"
-	echo " posO: $posO figO: $figureO"
+}
+
+check_pos()
+{
+
+
+	pos_forbit_X=()
+	pos_forbit_O=()
+
+	if ! (( ${#pos_forbit_O[@]} > 0)); then echo "pos_forbit_O is empty"; fi
+	if ! (( ${#pos_forbit_X[@]} > 0)); then echo "pos_forbit_X is empty"; fi
+
 	local nb_posX=$(echo $posX | grep -o '|' | wc -l)
 	local nb_posO=$(echo $posO | grep -o '|' | wc -l)
 
@@ -135,13 +150,12 @@ ia_3()
 		eval local fig$a=''
 		eval local lig$a=''
 		eval local col$a=''
-		eval local pos_ok$a=''
 		local i_hi=0
 		local i_bot=0
 		local i_bot2=0
 		local j_left=0
 		local j_right=0
-		eval local temp=\nb_pos$a
+		#eval local temp=\nb_pos$a
 		if eval [ \$nb_pos$a -ne 0 ]; then 
 			eval local temp2=\$nb_pos$a
 			for (( z=1; z<=$temp2; z++ )); do
@@ -155,7 +169,6 @@ ia_3()
 				eval temp=\$coord$a
 				eval lig$a=$(echo "$temp" | cut -d ' ' -f 1)
 				eval col$a=$(echo "$temp" | cut -d ' ' -f 2)
-				eval local coord_ok$a=""
 				eval local text="\$fig$a" 
 				case $text in
 					"Lig")
@@ -182,6 +195,13 @@ ia_3()
 										else
 										       	pos_okO+="$j_left |"
 										fi
+									else
+										if [ $a == 'X' ]; then
+											pos_forbit_O+=($j_left)
+										else
+											pos_forbit_X+=($j_left)
+										fi
+										
 									fi
 								fi
 							fi	
@@ -208,6 +228,12 @@ ia_3()
 											pos_okX+="$j_right |"
 										else
 											pos_okO+="$j_right |"
+										fi
+									else
+										if [ $a == 'X' ]; then
+											pos_forbit_O+=($j_right)
+										else
+											pos_forbit_X+=($j_right)
 										fi
 									fi
 								fi
@@ -252,6 +278,12 @@ ia_3()
 										else
 											pos_okO+="$j_left |"
 										fi
+									else
+										if [ $a == 'X' ]; then
+											pos_forbit_O+=($j_left)
+										else
+											pos_forbit_X+=($j_left)
+										fi
         	                                                        fi
                 	                                        fi
                         	                        fi
@@ -271,6 +303,12 @@ ia_3()
 										pos_okX+="$j_right |"
 									else
 										pos_okO+="$j_right |"
+									fi
+								else
+									if [ $a == 'X' ]; then
+										pos_forbit_O+=($j_right)
+									else
+										pos_forbit_X+=($j_right)
 									fi
                                                 	        fi
 	                                                fi
@@ -292,6 +330,12 @@ ia_3()
 										pos_okX+="$j_left |"
 									else
 										pos_okO+="$j_left |"
+									fi
+								else
+									if [ $a == 'X' ]; then
+										pos_forbit_O+=($j_left)
+									else
+										pos_forbit_X+=($j_left)
 									fi
                                 	                        fi
                                         	        fi
@@ -319,6 +363,12 @@ ia_3()
 										else
 											pos_okO+="$j_right |"
 										fi
+									else
+										if [ $a == 'X' ]; then
+											pos_forbit_O+=($j_right)
+										else
+											pos_forbit_X+=($j_right)
+										fi
         	                                                         fi
                 	                                        fi
                         	                        fi
@@ -333,7 +383,7 @@ ia_3()
 							fi
         	                                else
                 	                                eval local temp=\$lig$a
-                        	                        i_bot=$(($lig-1))
+                        	                        i_bot=$(($temp-1))
 							eval temp=\$col$a
                                         	        eval local v_bot=\${lig$i_bot[\$temp]}
                                                 	if [ $v_bot != '-' ]; then
@@ -341,6 +391,12 @@ ia_3()
 									pos_okX+="$temp |"
 								else
 									pos_okO+="$temp |"
+								fi
+							else
+								if [ $a == 'X' ]; then
+									pos_forbit_O+=($temp)
+								else
+									pos_forbit_X+=($temp)
 								fi
                                         	        fi
 	                                        fi;;
@@ -350,80 +406,82 @@ ia_3()
 			done
 		fi
 	done
-	local ret=0
+}
+
+main_ia()
+{
+	
+	local symb=$1
+	echo $symb
+	init_var_ia
+	detect_3
+	check_pos
+	for i in 'X' 'O';do
+		eval echo " pos$i: \$pos$i figure$i: \$figure$i pos_ok$i: \$pos_ok$i pos_forbit_$i: \${pos_forbit_$i[@]}"
+	done
+	local ret_add=0
+	local ret_forb=0
+	local ret_imp=0
+	local random=0
 	local placX=''
 	local plac0=''
-	local random=0
-	local nb_posX_ok=$(echo $pos_okX | grep -o '|' | wc -l)
-	local nb_posO_ok=$(echo $pos_okO | grep -o '|' | wc -l)
-        if [ $nb_posX_ok -ne 0 ]; then
-        	if [ $nb_posX_ok -ne 1 ]; then
-			random=$((1 + $RANDOM %$nb_posX_ok))
+	local nb_pos_okX=$(echo $pos_okX | grep -o '|' | wc -l)
+	local nb_pos_okO=$(echo $pos_okO | grep -o '|' | wc -l)
+			
+	if [ $nb_pos_okX -ne 0 ]; then
+        	if [ $nb_pos_okX -ne 1 ]; then
+			random=$((1 + $RANDOM %$nb_pos_okX))
                         placX=$(echo $pos_okX | cut -d '|' -f $random)
 		else
                         placX=$(echo $pos_okX | cut -d '|' -f 1)
 		fi
 	fi	       
-        if [ $nb_posO_ok -ne 0 ]; then
-        	if [ $nb_posO_ok -ne 1 ]; then
-			random=$((1 + $RANDOM %$nb_posO_ok))
+        if [ $nb_pos_okO -ne 0 ]; then
+        	if [ $nb_pos_okO -ne 1 ]; then
+			random=$((1 + $RANDOM %$nb_pos_okO))
                         placO=$(echo $pos_okO | cut -d '|' -f $random)
 		else
                         placO=$(echo $pos_okO | cut -d '|' -f 1)
 		fi
 	fi	       
 
-	if [ $symb == 'X' ] && [ $nb_posX_ok -ne 0 ]; then
+	if [ $symb == 'X' ] && [ $nb_pos_okX -ne 0 ]; then
 		add $placX 'X'
 	else
-	       	if  [ $symb == 'X' ] && [ $nb_posO_ok -ne 0 ]; then
+	       	if  [ $symb == 'X' ] && [ $nb_pos_okO -ne 0 ]; then
 			add $placO 'X'
 		else 
-			if  [ $symb == 'O' ] && [ $nb_posO_ok -ne 0 ]; then
+			if  [ $symb == 'O' ] && [ $nb_pos_okO -ne 0 ]; then
 				add $placO 'O'
 			else 
-				if  [ $symb == 'O' ] && [ $nb_posX_ok -ne 0 ]; then
+				if  [ $symb == 'O' ] && [ $nb_pos_okX -ne 0 ]; then
 					add $placX 'O'
 				else
-#					if [ $symb == 'X' ]; then
-#						
-#						weighted_selection
-#						random=$?
-#						while [ $ret -eq 1 ]; do
-#							#random=$((1 + $RANDOM %7))
-#							weighted_selection
-#							random=$?
-#							add $random $symb
-#							ret=$?
-#						done
-#					else 
-#						if [ $symb == 'O' ]; then
-#							weighted_selection
-#							random=$?
-#							while [ $ret -eq 1 ]; do
-#								#random=$((1 + $RANDOM %7))
-#								weighted_selection
-#								random=$?
-#								add $random $symb
-#								ret=$?
-#							done
-#						else
-							#random=$((1 + $RANDOM %7))
+					echo "last case"
+					local cond1=true
+					while $cond1 || [ $ret_add -eq 1 ]; do
+						cond1=false
+						local cond2=true
+						while $cond2 || [ $ret_forb -eq 1 ] ; do
+							cond2=false
 							weighted_selection
 							random=$?
-							add $random $symb
-							ret=$?
-							while [ $ret -eq 1 ]; do
-								#random=$((1 + $RANDOM %7))
-								weighted_selection
-								random=$?
-								add $random $symb
-								ret=$?
-							done
-						#fi
-					#fi
+
+							check_pos_forb $symb $random
+							ret_forb=$?
+							check_imp $symb $random
+							ret_imp=$?
+							if [ $ret_imp -eq 1 ]; then break; fi
+						done
+						add $random $symb
+						ret_add=$?
+					done
 				fi
 			fi
 		fi
 	fi
 }
+
+#$nb_pos_forbit_$a
+#$symb_forb
+#$nb_pos_forbit_$symb_forb
