@@ -61,11 +61,54 @@ fi
 
 check_draw()
 {
-	win=0
 	for j in {1..7}; do
 		eval local v6y=\${lig6[\j]}
 		if [ $v6y == '-' ]; then return 0
 		fi
 	done
 	return 1
+}
+
+check_imp()
+{
+	local ret=0
+        local symb_forb=$1
+	local i=(1 2 3 4 5 6 7)
+	
+	eval local tmp=(\${pos_forbit_$symb_forb[@]})
+	eval local nb_pos_forbit_$symb_forb=${#tmp[@]}
+        if eval [ \$nb_pos_forbit_$symb_forb -ne 0 ]; then
+		#readarray -t tmp < <(printf '%s\n' "${tmp[@]}" | sort)
+		i=($({ printf '%s\n' "${i[@]}" "${tmp[@]}"; } | sort | uniq -u))
+                for j in "${i[@]}"; do
+			local v6y=${lig6[$j]}
+			if [ $v6y == '-' ]; then return 0; fi
+		done
+        fi
+	return 1
+}
+
+
+#return 1 si pos donnée est une interdite
+#nécessite symb et colonne en paramètre
+check_pos_forb()
+{
+        local symb_forb=$1
+        local col_test=$2
+        if [ $symb_forb == 'X' ]; then
+                local nb_pos_forbit_X=${#pos_forbit_X[@]}
+        else
+                local nb_pos_forbit_O=${#pos_forbit_O[@]}
+        fi
+
+        if eval [ \$nb_pos_forbit_$symb_forb -ne 0 ]; then
+                eval local tmp2=\${nb_pos_forbit_$symb_forb[@]}
+                for (( z=0; z<$tmp2; z++ )); do
+                        eval local tmp=(\${pos_forbit_$symb_forb[@]})
+                        if [ ${tmp[$z]} -eq $col_test ]; then
+                                return 1
+                        fi
+                done
+        fi
+        return 0
 }

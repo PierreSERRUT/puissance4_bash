@@ -129,7 +129,7 @@ game_hard()
 	while [ $winner -eq 0 ]
 	do
 		if [ $symb == 'O' ]; then
-			ia_3 'X'
+			main_ia 'X'
 			display_grille	
 			validate_win
 			winner=$?
@@ -164,7 +164,7 @@ game_hard()
 			break
 		fi
 		if [ $symb == 'X' ]; then
-			ia_3 'O'
+			main_ia 'O'
 			display_grille	
 		fi
 		validate_win
@@ -221,7 +221,7 @@ game_m_vs_m()
 	display_grille	
 	while [ $winner -eq 0 ]
 	do
-		ia_3 'X'
+		main_ia 'X'
 		display_grille	
 		validate_win
 		winner=$?
@@ -231,7 +231,7 @@ game_m_vs_m()
 		if [ $draw -eq 1 ]; then
 			break
 		fi
-		ia_3 'O'
+		main_ia 'O'
 		display_grille	
 		validate_win
 		winner=$?
