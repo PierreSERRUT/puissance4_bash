@@ -3,7 +3,7 @@
 #renvoi 1 si la colonne est déjà rempli
 add()
 {
-	i=1
+	local i=1
 	local place=0
 	if [ $1 -gt 7 ]; then return 1; fi
 	until [[ $i -eq 7  ||  $place -eq 1 ]]; do

@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
 
+# initialisation des variables globales de l'ordinateur
 init_var_ia()
 {
-	for i in 'X' 'O';do
-		eval pos$i=""
-		eval figure$i=""
-		eval pos_ok$i=""
-	done
+	declare -a pos_X=()
+	declare -a pos_O=()
+	declare -a figure_X=()
+	declare -a figure_O=()
+	declare -a pos_ok_X=()
+	declare -a pos_ok_O=()
 	declare -a pos_forbit_X=()
 	declare -a pos_forbit_O=()
 }
 
-#rempli les posX,O et figX,O
+#rempli les pos_X,O et figure_X,O
 detect_3()
 {
+	pos_X=()
+	pos_O=()
+	figure_X=()
+	figure_O=()
 	for i in {1..6}; do
 		for j in {1..7}; do
 			local i1=$(($i+1))
@@ -28,10 +34,15 @@ detect_3()
                                 eval local vxy2=\${lig$i[\$j2]}
 				if [[ $vxy == $vxy1 && $vxy == $vxy2 && $vxy != '-' ]]
 				then
-					local pos="$i $j |"
-					local fig="Lig |"
-					eval pos$vxy+="\$pos"
-					eval figure$vxy+="\$fig"
+					local pos="$i $j"
+					##local fig="Lig |"
+					if [ $vxy == X ]; then
+					       	pos_X+=($pos)
+					       	figure_X+=("Lig")
+				       	else
+					       	pos_O+=($pos_O)
+					       	figure_O+=("Lig")
+				       	fi
 				fi
 			fi
 			if [ $j -le 4 ]; then 
@@ -42,15 +53,13 @@ detect_3()
 				then
 				       if [ $vxy == $vxy1 ] || [ $vxy == $vxy2 ]; then
 						if [ $vxy1 == '-' ]; then 
-							local pos="$i $j1 |"
-							local fig="LigMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+							local pos="$i $j1"
+							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("LigMissing")
+						       	else pos_O+=($pos_O); figure_O+=("LigMissing"); fi
 						else if [ $vxy2 == '-' ]; then
-						       	local pos="$i $j2 |"
-							local fig="LigMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+						       	local pos="$i $j2"
+							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("LigMissing")
+						       	else pos_O+=($pos_O); figure_O+=("LigMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -61,10 +70,9 @@ detect_3()
 				eval local vx2y=\${lig$i2[\$j]}
 				if [[ $vxy == $vx1y && $vxy == $vx2y && $vxy != '-' ]]
 				then
-					local pos="$i $j |"
-					local fig="Col |"
-					eval pos$vxy+="\$pos"
-					eval figure$vxy+="\$fig"
+					local pos="$i $j"
+					if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("Col")
+				       	else pos_O+=($pos_O); figure_O+=("Col"); fi
 				fi
 			fi
 			if [[ $i -le 4 && $j -le 5 ]]; then
@@ -72,17 +80,15 @@ detect_3()
 				eval local vx2y2=\${lig$i2[\$j2]}
 				if [[ $vxy == $vx1y1 && $vxy == $vx2y2 && $vxy != '-' ]]
 				then
-					local pos="$i $j |"
-					local fig="DiagoM |"
-					eval pos$vxy+="\$pos"
-					eval figure$vxy+="\$fig"
+					local pos="$i $j"
+					if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagoM")
+					else pos_O+=($pos_O); figure_O+=("DiagoM"); fi
 				fi
 				if [[ $vx2y == $vx1y1 && $vx2y == $vxy2 && $vx2y != '-' ]]
 				then
-					local pos="$i $j |"
-					local fig="DiagoD |"
-					eval pos$vx2y+="\$pos"
-					eval figure$vx2y+="\$fig"
+					local pos="$i $j"
+					if [ $vx2y == X ]; then pos_X+=($pos); figure_X+=("DiagoD")
+					else pos_O+=($pos_O); figure_O+=("DiagoD"); fi
 				fi
 			fi
 			if [[ $i -le 3 && $j -le 4 ]]; then
@@ -93,15 +99,13 @@ detect_3()
 				then
 				       if [ $vxy == $vx1y1 ] || [ $vxy == $vx2y2 ]; then
 						if [ $vx1y1 == '-' ]; then 
-							local pos="$i1 $j1 |"
-							local fig="DiagMoMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+							local pos="$i1 $j1"
+							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
+							else pos_O+=($pos_O); figure_O+=("DiagMoMissing"); fi
 						else if [ $vx2y2 == '-' ]; then
-						       	local pos="$i2 $j2 |"
-							local fig="DiagMoMissing |"
-							eval pos$vxy+="\$pos"
-							eval figure$vxy+="\$fig"
+						       	local pos="$i2 $j2"
+							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
+							else pos_O+=($pos_O); figure_O+=("DiagMoMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -114,15 +118,13 @@ detect_3()
 				then
 				       if [ $vx3y == $vx2y1 ] || [ $vx3y == $vx1y2 ]; then
 						if [ $vx2y1 == '-' ]; then 
-							local pos="$i2 $j1 |"
-							local fig="DiagDeMissing |"
-							eval pos$vx3y+="\$pos"
-							eval figure$vx3y+="\$fig"
+							local pos="$i2 $j1"
+							if [ $vx3y == X ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
+							else pos_O+=($pos_O); figure_O+=("DiagDeMissing"); fi
 						else if [ $vx1y2 == '-' ]; then
-						       	local pos="$i1 $j2 |"
-							local fig="DiagDeMissing |"
-							eval pos$vx3y+="\$pos"
-							eval figure$vx3y+="\$fig"
+						       	local pos="$i1 $j2"
+							if [ $vx3y == X ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
+							else pos_O+=($pos_O); figure_O+=("DiagDeMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -135,18 +137,17 @@ detect_3()
 check_pos()
 {
 
-
+	pos_ok_X=()
+	pos_ok_O=()
 	pos_forbit_X=()
 	pos_forbit_O=()
 
-	if ! (( ${#pos_forbit_O[@]} > 0)); then echo "pos_forbit_O is empty"; fi
-	if ! (( ${#pos_forbit_X[@]} > 0)); then echo "pos_forbit_X is empty"; fi
+#	if ! (( ${#pos_forbit_O[@]} > 0)); then echo "pos_forbit_O is empty"; fi
+#	if ! (( ${#pos_forbit_X[@]} > 0)); then echo "pos_forbit_X is empty"; fi
 
-	local nb_posX=$(echo $posX | grep -o '|' | wc -l)
-	local nb_posO=$(echo $posO | grep -o '|' | wc -l)
-
+	local nb_pos_X=${#pos_X[@]}
+	local nb_pos_O=${#pos_O[@]}
 	for a in  'X' 'O'; do
-		eval local coord$a=''
 		eval local fig$a=''
 		eval local lig$a=''
 		eval local col$a=''
@@ -155,20 +156,19 @@ check_pos()
 		local i_bot2=0
 		local j_left=0
 		local j_right=0
-		#eval local temp=\nb_pos$a
-		if eval [ \$nb_pos$a -ne 0 ]; then 
-			eval local temp2=\$nb_pos$a
-			for (( z=1; z<=$temp2; z++ )); do
+		if eval [ \$nb_pos_$a -ne 0 ]; then 
+			eval local temp2=\$nb_pos_$a
+			temp2=$((temp2 / 2))
+			for (( z=0; z<$temp2; z++ )); do
 				if [ $a == 'X' ]; then
-					coordX=$(echo $posX | cut -d '|' -f $z)
+					figX=${figure_X[$z]}
+					ligX=${pos_X[$((z*2))]}
+					colX=${pos_X[$((z*2+1))]}
 				else
-					coordO=$(echo $posO | cut -d '|' -f $z)
+					figO=${figure_O[$z]}
+					ligX=${pos_X[$((z*2))]}
+					colX=${pos_X[$((z*2+1))]}
 				fi
-				eval temp=\$figure$a
-				eval fig$a=$(echo "$temp" | cut -d '|' -f $z)
-				eval temp=\$coord$a
-				eval lig$a=$(echo "$temp" | cut -d ' ' -f 1)
-				eval col$a=$(echo "$temp" | cut -d ' ' -f 2)
 				eval local text="\$fig$a" 
 				case $text in
 					"Lig")
@@ -181,9 +181,9 @@ check_pos()
 							if [ $v_left == '-' ];then 
 								if eval [ \$lig$a -eq 1 ]; then
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_left |"
+										pos_ok_X+=($j_left)
 									else
-										pos_okO+="$j_left |"
+										pos_ok_O+=($j_left)
 									fi
 								else
 									eval local temp=\$lig$a
@@ -191,9 +191,9 @@ check_pos()
 									eval local v_left_bot=\${lig$i_bot[\$j_left]}
 									if [ $v_left_bot != '-' ]; then 
 										if [ $a == 'X' ]; then
-										       	pos_okX+="$j_left |"
+											pos_ok_X+=($j_left)
 										else
-										       	pos_okO+="$j_left |"
+											pos_ok_O+=($j_left)
 										fi
 									else
 										if [ $a == 'X' ]; then
@@ -215,9 +215,9 @@ check_pos()
 							if [ $v_right == '-' ];then 
 								if eval [ \$lig$a -eq 1 ]; then
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_right |"
+										pos_ok_X+=($j_right)
 									else
-										pos_okO+="$j_right |"
+										pos_ok_O+=($j_right)
 									fi
 								else
 									eval local temp=\$lig$a
@@ -225,9 +225,9 @@ check_pos()
 									eval local v_right_bot=\${lig$i_bot[\$j_right]}
 									if [ $v_right_bot != '-' ]; then 
 										if [ $a == 'X' ]; then
-											pos_okX+="$j_right |"
+											pos_ok_X+=($j_right)
 										else
-											pos_okO+="$j_right |"
+											pos_ok_O+=($j_right)
 										fi
 									else
 										if [ $a == 'X' ]; then
@@ -247,9 +247,9 @@ check_pos()
 	                                                eval local v_hi=\${lig$i_hi[\$temp]}
         	                                        if [ $v_hi == '-' ]; then
 								if [ $a == 'X' ]; then
-                        	                                	pos_okX+="$temp |"
+									pos_ok_X+=($temp)
 								else
-                                        	                	pos_okO+="$temp |"
+									pos_ok_O+=($temp)
 								fi
           	                                      fi
                 	                        fi;;
@@ -264,9 +264,9 @@ check_pos()
                                 	                if [ $v_left == '-' ];then
                                         	                if eval [ \$lig$a -eq 2 ]; then
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_left |"
+										pos_ok_X+=($j_left)
 									else
-										pos_okO+="$j_left |"
+										pos_ok_O+=($j_left)
 									fi
         	                                                else
                 	                                		eval local temp=\$lig$a
@@ -274,9 +274,9 @@ check_pos()
                                 	                                eval local v_left_bot=\${lig$i_bot2[\$j_left]}
                                         	                        if [ $v_left_bot != '-' ]; then
 										if [ $a == 'X' ]; then
-											pos_okX+="$j_left |"
+											pos_ok_X+=($j_left)
 										else
-											pos_okO+="$j_left |"
+											pos_ok_O+=($j_left)
 										fi
 									else
 										if [ $a == 'X' ]; then
@@ -300,9 +300,9 @@ check_pos()
                                                         	eval local v_right_bot=\${lig$i_bot[\$j_right]}
 								if [ $v_right_bot != '-' ]; then
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_right |"
+										pos_ok_X+=($j_right)
 									else
-										pos_okO+="$j_right |"
+										pos_ok_O+=($j_right)
 									fi
 								else
 									if [ $a == 'X' ]; then
@@ -325,11 +325,10 @@ check_pos()
                                 	                        i_bot=$(($i_hi-1))
                                         	                eval local v_left_bot=\${lig$i_bot[\$j_left]}
                                                 	        if [ $v_left_bot != '-' ]; then
-									eval pos_ok$a+=
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_left |"
+										pos_ok_X+=($j_left)
 									else
-										pos_okO+="$j_left |"
+										pos_ok_O+=($j_left)
 									fi
 								else
 									if [ $a == 'X' ]; then
@@ -350,18 +349,18 @@ check_pos()
         	                                        if [ $v_right == '-' ];then
                 	                                        if eval [ \$lig$a -eq 2 ]; then
 									if [ $a == 'X' ]; then
-										pos_okX+="$j_right |"
+										pos_ok_X+=($j_right)
 									else
-										pos_okO+="$j_right |"
+										pos_ok_O+=($j_right)
 									fi
 	                                                         else
         	                                                         i_bot2=$(($temp-2))
                 	                                                 eval local v_right_bot=\${lig$i_bot2[\$j_right]} 
 									 if [ $v_right_bot != '-' ]; then
 									 	if [ $a == 'X' ]; then
-											pos_okX+="$j_right |"
+											pos_ok_X+=($j_right)
 										else
-											pos_okO+="$j_right |"
+											pos_ok_O+=($j_right)
 										fi
 									else
 										if [ $a == 'X' ]; then
@@ -377,9 +376,9 @@ check_pos()
         	                                if eval [ \$lig$a -eq 1 ]; then
 							eval local temp=\$col$a
 							if [ $a == 'X' ]; then
-								pos_okX+="$temp |"
+								pos_ok_X+=($temp)
 							else
-								pos_okO+="$temp |"
+								pos_ok_O+=($temp)
 							fi
         	                                else
                 	                                eval local temp=\$lig$a
@@ -388,9 +387,9 @@ check_pos()
                                         	        eval local v_bot=\${lig$i_bot[\$temp]}
                                                 	if [ $v_bot != '-' ]; then
 								if [ $a == 'X' ]; then
-									pos_okX+="$temp |"
+									pos_ok_X+=($temp)
 								else
-									pos_okO+="$temp |"
+									pos_ok_O+=($temp)
 								fi
 							else
 								if [ $a == 'X' ]; then
@@ -416,45 +415,44 @@ main_ia()
 	init_var_ia
 	detect_3
 	check_pos
-	for i in 'X' 'O';do
-		eval echo " pos$i: \$pos$i figure$i: \$figure$i pos_ok$i: \$pos_ok$i pos_forbit_$i: \${pos_forbit_$i[@]}"
-	done
 	local ret_add=0
 	local ret_forb=0
 	local ret_imp=0
 	local random=0
 	local placX=''
 	local plac0=''
-	local nb_pos_okX=$(echo $pos_okX | grep -o '|' | wc -l)
-	local nb_pos_okO=$(echo $pos_okO | grep -o '|' | wc -l)
+	local nb_pos_ok_X=${#pos_ok_X[@]}
+	local nb_pos_ok_O=${#pos_ok_O[@]}
 			
-	if [ $nb_pos_okX -ne 0 ]; then
-        	if [ $nb_pos_okX -ne 1 ]; then
-			random=$((1 + $RANDOM %$nb_pos_okX))
-                        placX=$(echo $pos_okX | cut -d '|' -f $random)
+	if [ $nb_pos_ok_X -ne 0 ]; then
+        	if [ $nb_pos_ok_X -ne 1 ]; then
+			random=$(($RANDOM %$nb_pos_ok_X))
+			echo "placX// random=$random"
+                        placX=${pos_ok_X[$random]}
 		else
-                        placX=$(echo $pos_okX | cut -d '|' -f 1)
+                        placX=${pos_ok_X[0]}
 		fi
 	fi	       
-        if [ $nb_pos_okO -ne 0 ]; then
-        	if [ $nb_pos_okO -ne 1 ]; then
-			random=$((1 + $RANDOM %$nb_pos_okO))
-                        placO=$(echo $pos_okO | cut -d '|' -f $random)
+        if [ $nb_pos_ok_O -ne 0 ]; then
+        	if [ $nb_pos_ok_O -ne 1 ]; then
+			random=$(($RANDOM %$nb_pos_ok_O))
+                        placO=${pos_ok_O[$random]}
 		else
-                        placO=$(echo $pos_okO | cut -d '|' -f 1)
+                        placO=${pos_ok_O[0]}
 		fi
 	fi	       
 
-	if [ $symb == 'X' ] && [ $nb_pos_okX -ne 0 ]; then
+	if [ $symb == 'X' ] && [ $nb_pos_ok_X -ne 0 ]; then
 		add $placX 'X'
 	else
-	       	if  [ $symb == 'X' ] && [ $nb_pos_okO -ne 0 ]; then
+	       	if  [ $symb == 'X' ] && [ $nb_pos_ok_O -ne 0 ]; then
 			add $placO 'X'
 		else 
-			if  [ $symb == 'O' ] && [ $nb_pos_okO -ne 0 ]; then
+			if  [ $symb == 'O' ] && [ $nb_pos_ok_O -ne 0 ]; then
 				add $placO 'O'
 			else 
-				if  [ $symb == 'O' ] && [ $nb_pos_okX -ne 0 ]; then
+				if  [ $symb == 'O' ] && [ $nb_pos_ok_X -ne 0 ]; then
+					echo "pos_ok_X: ${pos_ok_X[@]} / placX: $placX"
 					add $placX 'O'
 				else
 					echo "last case"
@@ -473,6 +471,7 @@ main_ia()
 							ret_imp=$?
 							if [ $ret_imp -eq 1 ]; then break; fi
 						done
+						echo "random: $random"
 						add $random $symb
 						ret_add=$?
 					done
@@ -481,7 +480,3 @@ main_ia()
 		fi
 	fi
 }
-
-#$nb_pos_forbit_$a
-#$symb_forb
-#$nb_pos_forbit_$symb_forb
