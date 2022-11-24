@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#renvoi le numéro de joueur s'il a gagné; 0 autrement
+#renvoi 1 si X gagne, 2 si O gagne; 0 autrement
 validate_win()
 {
 	local win=0
@@ -53,12 +53,12 @@ validate_win()
 			fi
 		done
 	done
-if [ $win == 'X' ]; then return 1
-else if [ $win == 'O' ]; then return 2
-fi
-fi
+	if [ $win == 'X' ]; then return 1
+	else if [ $win == 'O' ]; then return 2
+	fi; fi
 }
 
+#vérifie s'il y a une égalité
 check_draw()
 {
 	for j in {1..7}; do
@@ -69,6 +69,8 @@ check_draw()
 	return 1
 }
 
+#vérifie s'il est possible de remplir une colonne pas interdite
+#parametre: $symb (pour liste des colonnes interdites correspondantes)
 check_imp()
 {
 	local ret=0
@@ -90,7 +92,7 @@ check_imp()
 
 
 #return 1 si pos donnée est une interdite
-#nécessite symb et colonne en paramètre
+#parametre: $symb (pour liste des colonnes interdites correspondantes) et $colonne à tester
 check_pos_forb()
 {
         local symb_forb=$1
@@ -102,7 +104,7 @@ check_pos_forb()
         fi
 
         if eval [ \$nb_pos_forbit_$symb_forb -ne 0 ]; then
-                eval local tmp2=\${nb_pos_forbit_$symb_forb[@]}
+                eval local tmp2=\$nb_pos_forbit_$symb_forb
                 for (( z=0; z<$tmp2; z++ )); do
                         eval local tmp=(\${pos_forbit_$symb_forb[@]})
                         if [ ${tmp[$z]} -eq $col_test ]; then
