@@ -35,11 +35,11 @@ detect_3()
 				if [[ $vxy == $vxy1 && $vxy == $vxy2 && $vxy != '-' ]]
 				then
 					local pos="$i $j"
-					if [ $vxy == X ]; then
+					if [ $vxy == 'X' ]; then
 					       	pos_X+=($pos)
 					       	figure_X+=("Lig")
 				       	else
-					       	pos_O+=($pos_O)
+					       	pos_O+=($pos)
 					       	figure_O+=("Lig")
 				       	fi
 				fi
@@ -53,12 +53,12 @@ detect_3()
 				       if [ $vxy == $vxy1 ] || [ $vxy == $vxy2 ]; then
 						if [ $vxy1 == '-' ]; then 
 							local pos="$i $j1"
-							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("LigMissing")
-						       	else pos_O+=($pos_O); figure_O+=("LigMissing"); fi
+							if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("LigMissing")
+						       	else pos_O+=($pos); figure_O+=("LigMissing"); fi
 						else if [ $vxy2 == '-' ]; then
 						       	local pos="$i $j2"
-							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("LigMissing")
-						       	else pos_O+=($pos_O); figure_O+=("LigMissing"); fi
+							if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("LigMissing")
+						       	else pos_O+=($pos); figure_O+=("LigMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -70,8 +70,8 @@ detect_3()
 				if [[ $vxy == $vx1y && $vxy == $vx2y && $vxy != '-' ]]
 				then
 					local pos="$i $j"
-					if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("Col")
-				       	else pos_O+=($pos_O); figure_O+=("Col"); fi
+					if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("Col")
+				       	else pos_O+=($pos); figure_O+=("Col"); fi
 				fi
 			fi
 			if [[ $i -le 4 && $j -le 5 ]]; then
@@ -80,14 +80,14 @@ detect_3()
 				if [[ $vxy == $vx1y1 && $vxy == $vx2y2 && $vxy != '-' ]]
 				then
 					local pos="$i $j"
-					if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagoM")
-					else pos_O+=($pos_O); figure_O+=("DiagoM"); fi
+					if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("DiagoM")
+					else pos_O+=($pos); figure_O+=("DiagoM"); fi
 				fi
 				if [[ $vx2y == $vx1y1 && $vx2y == $vxy2 && $vx2y != '-' ]]
 				then
 					local pos="$i $j"
-					if [ $vx2y == X ]; then pos_X+=($pos); figure_X+=("DiagoD")
-					else pos_O+=($pos_O); figure_O+=("DiagoD"); fi
+					if [ $vx2y == 'X' ]; then pos_X+=($pos); figure_X+=("DiagoD")
+					else pos_O+=($pos); figure_O+=("DiagoD"); fi
 				fi
 			fi
 			if [[ $i -le 3 && $j -le 4 ]]; then
@@ -99,12 +99,12 @@ detect_3()
 				       if [ $vxy == $vx1y1 ] || [ $vxy == $vx2y2 ]; then
 						if [ $vx1y1 == '-' ]; then 
 							local pos="$i1 $j1"
-							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
-							else pos_O+=($pos_O); figure_O+=("DiagMoMissing"); fi
+							if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
+							else pos_O+=($pos); figure_O+=("DiagMoMissing"); fi
 						else if [ $vx2y2 == '-' ]; then
 						       	local pos="$i2 $j2"
-							if [ $vxy == X ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
-							else pos_O+=($pos_O); figure_O+=("DiagMoMissing"); fi
+							if [ $vxy == 'X' ]; then pos_X+=($pos); figure_X+=("DiagMoMissing")
+							else pos_O+=($pos); figure_O+=("DiagMoMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -118,12 +118,12 @@ detect_3()
 				       if [ $vx3y == $vx2y1 ] || [ $vx3y == $vx1y2 ]; then
 						if [ $vx2y1 == '-' ]; then 
 							local pos="$i2 $j1"
-							if [ $vx3y == X ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
-							else pos_O+=($pos_O); figure_O+=("DiagDeMissing"); fi
+							if [ $vx3y == 'X' ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
+							else pos_O+=($pos); figure_O+=("DiagDeMissing"); fi
 						else if [ $vx1y2 == '-' ]; then
 						       	local pos="$i1 $j2"
-							if [ $vx3y == X ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
-							else pos_O+=($pos_O); figure_O+=("DiagDeMissing"); fi
+							if [ $vx3y == 'X' ]; then pos_X+=($pos); figure_X+=("DiagDeMissing")
+							else pos_O+=($pos); figure_O+=("DiagDeMissing"); fi
 						fi
 					      	fi
 				       fi
@@ -133,7 +133,7 @@ detect_3()
 	done
 }
 
-#rempli les positions ok et interdite pour X et O
+#rempli les positions ok et interdite pour 'X' et O
 check_pos()
 {
 
@@ -166,8 +166,8 @@ check_pos()
 					colX=${pos_X[$((z*2+1))]}
 				else
 					figO=${figure_O[$z]}
-					ligX=${pos_X[$((z*2))]}
-					colX=${pos_X[$((z*2+1))]}
+					ligO=${pos_O[$((z*2))]}
+					colO=${pos_O[$((z*2+1))]}
 				fi
 				eval local text="\$fig$a" 
 				case $text in
@@ -423,7 +423,7 @@ main_ia()
 	local plac0=''
 	local nb_pos_ok_X=${#pos_ok_X[@]}
 	local nb_pos_ok_O=${#pos_ok_O[@]}
-			
+
 	if [ $nb_pos_ok_X -ne 0 ]; then
         	if [ $nb_pos_ok_X -ne 1 ]; then
 			random=$(($RANDOM %$nb_pos_ok_X))
